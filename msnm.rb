@@ -145,7 +145,7 @@ module Net
 
       class SessionHandler      # Strategy
 
-		TIMEOUT = 5
+        TIMEOUT = 5
 
         # <template methods>
         #
@@ -184,11 +184,11 @@ module Net
         end
 
 
-		def on_bye( peer_id )
-		  if @sess.session_users.size.zero?
-		    session_out
-		  end
-		end
+        def on_bye( peer_id )
+          if @sess.session_users.size.zero?
+            session_out
+          end
+        end
 
 
         def queue_message( msg_body, msg_header = nil )
@@ -206,7 +206,7 @@ module Net
 
         def send_loop
           while senddata = @msg_send_queue.pop
-			@tick = Time.now
+            @tick = Time.now
             content, header = senddata
             @sess.send_message2( content, header )
           end
@@ -215,7 +215,7 @@ module Net
 
         def recv_loop
           while recvdata = @msg_recv_queue.pop
-			@tick = Time.now
+            @tick = Time.now
             peer_id, peer_nick, msg = recvdata
             msg_header, msg_body = msg.split( /\r\n\r\n/um, 2 )
             handle_message( peer_id, peer_nick,
@@ -233,16 +233,16 @@ module Net
           @msg_send_queue = SizedQueue.new(1000)
           @send_t = Thread.start { send_loop }
           @recv_t = Thread.start { recv_loop }
-		  @tick = Time.now
-		  @killer = Thread.start do
-			while true
-		      sleep 1
-			  if Time.now - @tick > TIMEOUT
-			    session_out
-			    Thread.exit
-			  end
-			end
-		  end
+          @tick = Time.now
+          @killer = Thread.start do
+            while true
+              sleep 1
+              if Time.now - @tick > TIMEOUT
+                session_out
+                Thread.exit
+              end
+            end
+          end
         end
 
 
@@ -388,18 +388,18 @@ module Net
         def ver
           send_command( 'VER %d %s'+CRLF, PROTOCOL_VER.join(' ') )
         end
-		
-		
-		def cvr
-		  locale = '0x0411'
-		  ostype = 'win'
-		  osver = '6.00'
-		  osarch = 'i386'
-		  cliname = 'MSNMSGR'
-		  cliver = '6.2.0137'
+        
+        
+        def cvr
+          locale = '0x0411'
+          ostype = 'win'
+          osver = '6.00'
+          osarch = 'i386'
+          cliname = 'MSNMSGR'
+          cliver = '6.2.0137'
           send_command( 'CVR %s %s %s %s %s %s %s MSMSGS %s'+CRLF,
-					   locale, ostype, osver, osarch, cliname, cliver, @user_id )
-		end
+                       locale, ostype, osver, osarch, cliname, cliver, @user_id )
+        end
 
 
         def inf
@@ -617,7 +617,7 @@ module Net
         RE_JOI = /^JOI (.+) (.+)#{CRLF}/u
         RE_BYE = /^BYE (.+)#{CRLF}/u
         RE_OUT = /^OUT(?: (.+))?#{CRLF}/u
-		RE_CHL = /^CHL 0 (.+)#{CRLF}/
+        RE_CHL = /^CHL 0 (.+)#{CRLF}/
         RE_MSG = /^MSG (.+) (.+) (\d+)#{CRLF}/u
         RE_ACK = /^(ACK|NAK) (\d+)#{CRLF}/u
         RE_REA = /^REA (\d+) (\d+) (.+) (.+)#{CRLF}/u
@@ -765,11 +765,11 @@ module Net
 
               terminate
 
-			when RE_CHL
+            when RE_CHL
 
-			  ch_str = $1
-			  ch_res = MD5.new( ch_str + 'Q1P7W2E4J9R8U3S5' ).hexdigest  # challenge response
-			  send_command( 'QRY %d msmsgs@msnmsgr.com 32'+CRLF+'%s', ch_res )
+              ch_str = $1
+              ch_res = MD5.new( ch_str + 'Q1P7W2E4J9R8U3S5' ).hexdigest  # challenge response
+              send_command( 'QRY %d msmsgs@msnmsgr.com 32'+CRLF+'%s', ch_res )
 
             when RE_MSG
 
@@ -905,9 +905,9 @@ module Net
           begin
             if $DEBUG
               STDOUT.puts ">>> " + Time.now.strftime('%Y/%m/%d:%H:%M:%S ') +
-			    self.class.name.split('::')[-1] +
+                self.class.name.split('::')[-1] +
                 format( "#<%s>\n%s\n", self.object_id, ( str || "(nil)" ) )
-			  STDOUT.flush
+              STDOUT.flush
             end
             @sock.write str
           rescue
@@ -921,9 +921,9 @@ module Net
             str = @sock.gets
             if $DEBUG
               STDOUT.puts "<<< " + Time.now.strftime('%Y/%m/%d:%H:%M:%S ') +
-			    self.class.name.split('::')[-1] +
-				format( "#<%s>\n%s\n", self.object_id, ( str || "(nil)" ) )
-			  STDOUT.flush
+                self.class.name.split('::')[-1] +
+                format( "#<%s>\n%s\n", self.object_id, ( str || "(nil)" ) )
+              STDOUT.flush
             end
           rescue
           end
@@ -937,9 +937,9 @@ module Net
             str = @sock.read( len )
             if $DEBUG
               STDOUT.puts "<<< " + Time.now.strftime('%Y/%m/%d:%H:%M:%S ') +
-			    self.class.name.split('::')[-1] +
-				format( "#<%s>\n%s\n", self.object_id, ( str || "(nil)" ) )
-			  STDOUT.flush
+                self.class.name.split('::')[-1] +
+                format( "#<%s>\n%s\n", self.object_id, ( str || "(nil)" ) )
+              STDOUT.flush
             end
           rescue
           end
@@ -976,30 +976,30 @@ module Net
 
         def login( passwd )
           wait_transaction( ver )
-		  wait_transaction( cvr )
+          wait_transaction( cvr )
           sec_pkg, ch_str = wait_transaction( usr_i )
-		  # HTTP: Passport Nexus
-		  https = Net::HTTP.new('nexus.passport.com',443)
-		  https.use_ssl = true
-		  resp = https.get('/rdr/pprdr.asp')
-		  m = resp['passporturls'].match('DALogin=(.*?),')
-		  loginurl = 'https://'+m[1]
-		  uri = URI.split(loginurl)
-		  # HTTP: Login Server
-		  https = Net::HTTP.new(uri[2],443)
-		  https.use_ssl = true
-		  auth_str = 'Passport1.4 OrgVerb=GET,OrgURL=http%3A%2F%2Fmessenger%2Emsn%2Ecom,sign-in='+url_escape(@user_id)+',pwd='+passwd+','+ch_str
-		  resp = https.get(uri[5], {'Authorization'=>auth_str, 'Host'=>uri[2]})
-		  if resp['location']
-		    uri = URI.split(resp['location'])
-		    https = Net::HTTP.new(uri[2],443)
-		    https.use_ssl = true
-		    resp = https.get(uri[5]+'?'+uri[7], {'Authorization'=>auth_str,'Host'=>uri[2]})
-		  end
-		  m = resp['authentication-info'].match(/'(t=.*?)'/)
-		  ticket = m[1]
-		  # MSNP: login
-		  wait_transaction( usr_s(ticket) )
+          # HTTP: Passport Nexus
+          https = Net::HTTP.new('nexus.passport.com',443)
+          https.use_ssl = true
+          resp = https.get('/rdr/pprdr.asp')
+          m = resp['passporturls'].match('DALogin=(.*?),')
+          loginurl = 'https://'+m[1]
+          uri = URI.split(loginurl)
+          # HTTP: Login Server
+          https = Net::HTTP.new(uri[2],443)
+          https.use_ssl = true
+          auth_str = 'Passport1.4 OrgVerb=GET,OrgURL=http%3A%2F%2Fmessenger%2Emsn%2Ecom,sign-in='+url_escape(@user_id)+',pwd='+passwd+','+ch_str
+          resp = https.get(uri[5], {'Authorization'=>auth_str, 'Host'=>uri[2]})
+          if resp['location']
+            uri = URI.split(resp['location'])
+            https = Net::HTTP.new(uri[2],443)
+            https.use_ssl = true
+            resp = https.get(uri[5]+'?'+uri[7], {'Authorization'=>auth_str,'Host'=>uri[2]})
+          end
+          m = resp['authentication-info'].match(/'(t=.*?)'/)
+          ticket = m[1]
+          # MSNP: login
+          wait_transaction( usr_s(ticket) )
         end
 
 
@@ -1114,7 +1114,7 @@ module Net
 
         def login( passwd, event_handler )
           wait_transaction( ver )
-		  wait_transaction( cvr )
+          wait_transaction( cvr )
           ret = wait_transaction( usr_i )
           ns_host, ns_port = ret
           disconnect
@@ -1240,4 +1240,3 @@ module Net
 
 
 end  # module Net
-
